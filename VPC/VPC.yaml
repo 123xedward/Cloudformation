@@ -1,15 +1,21 @@
 ---
   AWSTemplateFormatVersion: "2010-09-09"
-  Description: "Creates a VPC with Managed NAT, similar to the VPC Wizard at https://console.aws.amazon.com/vpc/home#wizardFullpagePublicAndPrivate: (extended from VPC_with_PublicIPs_And_DNS.template sample)"
+  Description: "Creates a VPC with 2 public subnets, 2 private subnets"
 
   Mappings:
     SubnetConfig:
       VPC:
         CIDR: "10.0.0.0/16"
-      Public:
+      PublicOne:
         CIDR: "10.0.0.0/24"
-      Private:
+      PublicTwo:
         CIDR: "10.0.1.0/24"
+      PrivateOne:
+        CIDR: "10.0.2.0/24"
+      PrivateTwo:
+        CIDR: "10.0.3.0/24"
+
+#TODO Implementar AZ para las subredes
 
   Resources:
 
@@ -34,7 +40,9 @@
           -
             Key: "Name"
             Value: "VPC Public and Private with NAT"
-    PublicSubnet:
+
+
+    PublicSubnetOne:
       Type: "AWS::EC2::Subnet"
       Properties:
         VpcId:
@@ -42,7 +50,7 @@
         CidrBlock:
           Fn::FindInMap:
             - "SubnetConfig"
-            - "Public"
+            - "PublicOne"
             - "CIDR"
         MapPublicIpOnLaunch: "true"
         Tags:
@@ -52,11 +60,13 @@
               Ref: "AWS::StackName"
           -
             Key: "Network"
-            Value: "Public"
+            Value: "Public One"
           -
             Key: "Name"
-            Value: "Public"
-    PrivateSubnet:
+            Value: "Public One"
+
+
+    PublicSubnetTwo:
       Type: "AWS::EC2::Subnet"
       Properties:
         VpcId:
@@ -64,7 +74,31 @@
         CidrBlock:
           Fn::FindInMap:
             - "SubnetConfig"
-            - "Private"
+            - "PublicTwo"
+            - "CIDR"
+        MapPublicIpOnLaunch: "true"
+        Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "Network"
+            Value: "Public Two"
+          -
+            Key: "Name"
+            Value: "Public Two"
+
+
+    PrivateSubnetOne:
+      Type: "AWS::EC2::Subnet"
+      Properties:
+        VpcId:
+          Ref: "VPC"
+        CidrBlock:
+          Fn::FindInMap:
+            - "SubnetConfig"
+            - "PrivateOne"
             - "CIDR"
         Tags:
           -
@@ -73,10 +107,35 @@
               Ref: "AWS::StackName"
           -
             Key: "Network"
-            Value: "Private"
+            Value: "Private One"
           -
             Key: "Name"
-            Value: "Private"
+            Value: "Private One"
+
+
+    PrivateSubnetTwo:
+      Type: "AWS::EC2::Subnet"
+      Properties:
+        VpcId:
+          Ref: "VPC"
+        CidrBlock:
+          Fn::FindInMap:
+            - "SubnetConfig"
+            - "PrivateTwo"
+            - "CIDR"
+        Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "Network"
+            Value: "Private Two"
+          -
+            Key: "Name"
+            Value: "Private Two"
+
+
     InternetGateway:
       Type: "AWS::EC2::InternetGateway"
       Properties:
@@ -88,6 +147,8 @@
           -
             Key: "Network"
             Value: "Public"
+
+
     GatewayToInternet:
       Type: "AWS::EC2::VPCGatewayAttachment"
       Properties:
@@ -95,6 +156,8 @@
           Ref: "VPC"
         InternetGatewayId:
           Ref: "InternetGateway"
+
+
     PublicRouteTable:
       Type: "AWS::EC2::RouteTable"
       Properties:
@@ -108,6 +171,8 @@
           -
             Key: "Network"
             Value: "Public"
+
+
     PublicRoute:
       Type: "AWS::EC2::Route"
       DependsOn: "GatewayToInternet"
@@ -117,13 +182,25 @@
         DestinationCidrBlock: "0.0.0.0/0"
         GatewayId:
           Ref: "InternetGateway"
+
+
     PublicSubnetRouteTableAssociation:
       Type: "AWS::EC2::SubnetRouteTableAssociation"
       Properties:
         SubnetId:
-          Ref: "PublicSubnet"
+          Ref: "PublicSubnetOne"
         RouteTableId:
           Ref: "PublicRouteTable"
+
+    PublicSubnetRouteTableAssociationTwo:
+      Type: "AWS::EC2::SubnetRouteTableAssociation"
+      Properties:
+        SubnetId:
+          Ref: "PublicSubnetTwo"
+        RouteTableId:
+          Ref: "PublicRouteTable"
+
+
     PublicNetworkAcl:
       Type: "AWS::EC2::NetworkAcl"
       Properties:
@@ -137,6 +214,8 @@
           -
             Key: "Network"
             Value: "Public"
+
+
     InboundHTTPPublicNetworkAclEntry:
       Type: "AWS::EC2::NetworkAclEntry"
       Properties:
@@ -150,6 +229,8 @@
         PortRange:
           From: "0"
           To: "65535"
+
+
     OutboundPublicNetworkAclEntry:
       Type: "AWS::EC2::NetworkAclEntry"
       Properties:
@@ -163,13 +244,25 @@
         PortRange:
           From: "0"
           To: "65535"
+
+
     PublicSubnetNetworkAclAssociation:
       Type: "AWS::EC2::SubnetNetworkAclAssociation"
       Properties:
         SubnetId:
-          Ref: "PublicSubnet"
+          Ref: "PublicSubnetOne"
         NetworkAclId:
           Ref: "PublicNetworkAcl"
+
+    PublicSubnetNetworkAclAssociationTwo:
+      Type: "AWS::EC2::SubnetNetworkAclAssociation"
+      Properties:
+        SubnetId:
+          Ref: "PublicSubnetTwo"
+        NetworkAclId:
+          Ref: "PublicNetworkAcl"
+
+
     NATGateway:
       Type: "AWS::EC2::NatGateway"
       Properties:
@@ -178,16 +271,22 @@
             - "ElasticIP"
             - "AllocationId"
         SubnetId:
-          Ref: "PublicSubnet"
+          Ref: "PublicSubnetOne"
+
+
     ElasticIP:
       Type: "AWS::EC2::EIP"
       Properties:
         Domain: "vpc"
+
+
     PrivateRouteTable:
       Type: "AWS::EC2::RouteTable"
       Properties:
         VpcId:
           Ref: "VPC"
+
+
     PrivateRouteToInternet:
       Type: "AWS::EC2::Route"
       Properties:
@@ -196,38 +295,37 @@
         DestinationCidrBlock: "0.0.0.0/0"
         NatGatewayId:
           Ref: "NATGateway"
+
+
     PrivateSubnetRouteTableAssociation:
       Type: "AWS::EC2::SubnetRouteTableAssociation"
       Properties:
         SubnetId:
-          Ref: "PrivateSubnet"
+          Ref: "PrivateSubnetOne"
         RouteTableId:
           Ref: "PrivateRouteTable"
+
+    PrivateSubnetRouteTableAssociationTwo:
+      Type: "AWS::EC2::SubnetRouteTableAssociation"
+      Properties:
+        SubnetId:
+          Ref: "PrivateSubnetTwo"
+        RouteTableId:
+          Ref: "PrivateRouteTable"
+
+# ========================================================================
   Outputs:
     VPCId:
       Description: "VPCId of the newly created VPC"
       Value:
         Ref: "VPC"
-      Export:
-        Name:
-          !Join ['-', [!Ref 'AWS::Region', !Sub '${AWS::StackName}', 'VPC']]
-    PublicSubnet:
+
+    PublicSubnetOne:
       Description: "SubnetId of the public subnet"
       Value:
-        Ref: "PublicSubnet"
-      Export:
-        Name:
-          !Join ['-', [!Ref 'AWS::Region', !Sub '${AWS::StackName}', 'PublicSubnet']]
+        Ref: "PublicSubnetOne"
+
     PrivateSubnet:
       Description: "SubnetId of the private subnet"
       Value:
-        Ref: "PrivateSubnet"
-      Export:
-        Name:
-          !Join ['-', [!Ref 'AWS::Region', !Sub '${AWS::StackName}', 'PrivateSubnet']]
-    DefaultSecurityGroup:
-      Description: "DefaultSecurityGroup Id "
-      Value: { "Fn::GetAtt" : ["VPC", "DefaultSecurityGroup"] }
-      Export:
-        Name:
-          !Join ['-', [!Ref 'AWS::Region', !Sub '${AWS::StackName}', 'DefaultSecurityGroup']]
+        Ref: "PrivateSubnetOne"
