@@ -333,3 +333,18 @@ Outputs:
       Ref: "VPC"
     Export:
       Name: VPC
+
+  PrivateOne:
+    Description: "Private Subnet in AZ1"
+    Value:
+      Ref: "PrivateSubnetOne"
+    Export:
+      Name: PrivateOne
+
+
+  PrivateTwo:
+    Description: "Private Subnet in AZ2"
+    Value:
+      Ref: "PrivateSubnetTwo"
+    Export:
+      Name: PrivateTwo

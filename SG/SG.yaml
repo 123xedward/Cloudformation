@@ -65,7 +65,7 @@ Resources:
 Outputs:
   AppSecurityGroup:
     Description: SG for Application
-    Value: !Ref AppSecurityGroup
+    Value: !Ref ApplicationSecurityGroup
     Export:
       Name: AppSG
 
