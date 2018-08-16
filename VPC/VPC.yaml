@@ -341,10 +341,23 @@ Outputs:
     Export:
       Name: PrivateOne
 
-
   PrivateTwo:
     Description: "Private Subnet in AZ2"
     Value:
       Ref: "PrivateSubnetTwo"
     Export:
       Name: PrivateTwo
+
+  AZ1:
+    Description: "AZ 1"
+    Value:
+      Ref: "AZ1"
+    Export:
+      Name: AZ1
+
+  AZ2:
+    Description: "AZ 2"
+    Value:
+      Ref: "AZ2"
+    Export:
+      Name: AZ2

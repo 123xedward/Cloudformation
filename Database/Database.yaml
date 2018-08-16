@@ -1,132 +1,98 @@
----
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "Creates an Cluster Database"
+AWSTemplateFormatVersion: '2010-09-09'
 
-#TODO Add ParameterStore to DNSs, user, DatabasePassword
+Metadata:
+  License: Apache-2.0
+
+Description: 'Creates an RDS Aurora Cluster with master | replica instance'
 
 Parameters:
 
-  DatabaseName:
+  DBName:
+    Default: MyDatabase
+    Description: The database name
     Type: String
-    MinLength: 1
-    MaxLength: 64
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    MinLength: '1'
+    MaxLength: '64'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
 
-  DatabaseUser:
+  DBUser:
+    NoEcho: 'true'
+    Description: The database admin account username
     Type: String
-    MinLength: 1
-    MaxLength: 16
-    Default: pgpool
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
 
-  DatabasePassword:
+  DBPassword:
+    NoEcho: 'true'
+    Description: The database admin account password
     Type: String
-    MinLength: 8
-    MaxLength: 41
-    Default: pgp0o1Cred
-    NoEcho: true
-    AllowedPattern: "[a-zA-Z0-9]*"
+    MinLength: '1'
+    MaxLength: '41'
+    AllowedPattern: '[a-zA-Z0-9]+'
+    ConstraintDescription: must contain only alphanumeric characters.
 
-  DbInstanceSize:
+  DatabaseInstanceType:
+    Description: The database instance type
     Type: String
-    Description: Database instance size
-    AllowedValues:
-      - db.t2.small
-      - db.r4.large
-      - db.r4.xlarge
-      - db.r4.2xlarge
-      - db.r4.4xlarge
-      - db.r4.8xlarge
-      - db.r4.16xlarge
-    Default: "db.t2.small"
-
-  ProjectTag:
-    Type: String
-    Description: Tag to apply to created resources for visibility
-    Default: DemoDatabase
+    Default: db.t2.small
+    AllowedValues: [db.t1.micro, db.m1.small, db.m1.medium, db.m1.large, db.m1.xlarge,
+      db.m2.xlarge, db.m2.2xlarge, db.m2.4xlarge, db.m3.medium, db.m3.large, db.m3.xlarge,
+      db.m3.2xlarge, db.m4.large, db.m4.xlarge, db.m4.2xlarge, db.m4.4xlarge, db.m4.10xlarge,
+      db.r3.large, db.r3.xlarge, db.r3.2xlarge, db.r3.4xlarge, db.r3.8xlarge, db.m2.xlarge,
+      db.m2.2xlarge, db.m2.4xlarge, db.cr1.8xlarge, db.t2.micro, db.t2.small, db.t2.medium,
+      db.t2.large]
+    ConstraintDescription: must select a valid database instance type.
 
 Resources:
 
-  DBAuroraCluster:
-    Type: "AWS::RDS::DBCluster"
-    DependsOn: DBClusterParams
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
     Properties:
-      DatabaseName: !Ref DatabaseName
-      Engine: aurora-mysql
-      MasterUsername: !Ref DatabaseUser
-      MasterUserPassword: !Ref DatabasePassword
-      DBSubnetGroupName: !Ref DBSubnets
-      DBClusterParameterGroupName: !Ref DBClusterParams
-      VpcSecurityGroupIds:
-        - !ImportValue AuroraSG
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectTag
+        DBSubnetGroupDescription: CloudFormation managed DB subnet group.
+        SubnetIds:
+            - !ImportValue PrivateOne
+            - !ImportValue PrivateTwo
 
-  DBAuroraOne:
-      Type : "AWS::RDS::DBInstance"
-      DependsOn: DBParamGroup
+  DatabaseCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+        Engine: aurora
+        MasterUsername:
+            Ref: DBUser
+        MasterUserPassword:
+            Ref: DBPassword
+        PreferredBackupWindow: 02:00-03:00
+        PreferredMaintenanceWindow: mon:03:00-mon:04:00
+        DBSubnetGroupName:
+            Ref: DatabaseSubnetGroup
+        VpcSecurityGroupIds:
+          - !ImportValue AppSG
+
+  DatabasePrimaryInstance:
+      Type: AWS::RDS::DBInstance
       Properties:
-        DBClusterIdentifier: !Ref DBAuroraCluster
-        Engine: aurora-mysql
-        DBInstanceClass: !Ref DbInstanceSize
-        DBSubnetGroupName: !Ref DBSubnets
-        DBParameterGroupName: !Ref DBParamGroup
-        Tags:
-          - Key: Project
-            Value: !Ref ProjectTag
+          Engine: aurora
+          DBClusterIdentifier:
+              Ref: DatabaseCluster
+          DBInstanceClass:
+              Ref: DatabaseInstanceType
+          DBSubnetGroupName:
+              Ref: DatabaseSubnetGroup
 
-  DBAuroraTwo:
-    Type : "AWS::RDS::DBInstance"
-    DependsOn: DBParamGroup
-    Properties:
-      DBClusterIdentifier: !Ref DBAuroraCluster
-      Engine: aurora-mysql
-      DBInstanceClass: !Ref DbInstanceSize
-      DBSubnetGroupName: !Ref DBSubnets
-      DBParameterGroupName: !Ref DBParamGroup
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectTag
+  DatabaseReplicaInstance:
+      Type: AWS::RDS::DBInstance
+      Properties:
+          Engine: aurora
+          DBClusterIdentifier:
+              Ref: DatabaseCluster
+          DBInstanceClass:
+              Ref: DatabaseInstanceType
+          DBSubnetGroupName:
+              Ref: DatabaseSubnetGroup
 
-  DBSubnets:
-    Type: "AWS::RDS::DBSubnetGroup"
-    Properties:
-      DBSubnetGroupDescription: "Subnets for RDS cluster"
-      SubnetIds:
-        - !ImportValue PrivateOne
-        - !ImportValue PrivateTwo
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectTag
-
-  DBParamGroup:
-    Type: "AWS::RDS::DBParameterGroup"
-    Properties:
-      Description: Parameter group for RDS cluster
-      Family: manfred9.6
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectTag
-
-  DBClusterParams:
-    Type: "AWS::RDS::DBClusterParameterGroup"
-    Properties:
-      Description: Parameter group for RDS cluster
-      Family: manfred9.6
-      Parameters:
-        timezone: "UTC"
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectTag
-
-
-Outputs:
-
-  DBClusterEndpoint:
-    Description: Aurora cluster endpoint
-    Value: !GetAtt DBAuroraCluster.Endpoint.Address
-
-  DBReadEndpoint:
-    Description: Aurora cluster read endpoint
-    Value: !GetAtt DBAuroraCluster.ReadEndpoint.Address
+# ========================================================================
