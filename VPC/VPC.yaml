@@ -331,13 +331,5 @@ Outputs:
     Description: "VPCId of the newly created VPC"
     Value:
       Ref: "VPC"
-
-  PublicSubnetOne:
-    Description: "SubnetId of the public subnet"
-    Value:
-      Ref: "PublicSubnetOne"
-
-  PrivateSubnet:
-    Description: "SubnetId of the private subnet"
-    Value:
-      Ref: "PrivateSubnetOne"
+    Export:
+      Name: VPC

@@ -1,3 +1,76 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Security Groups for components"
+
+Resources:
+
+  ApplicationSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId: !ImportValue VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "http"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for Application"
+
+
+  AuroraSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow App instances to Aurora 3306
+      VpcId: !ImportValue VPC
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "http"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for AuroraDB"
+
+  AurosaSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: AuroraSecurityGroup
+    Properties:
+      GroupId: !Ref AuroraSecurityGroup
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+      SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+
+#TODO SG for Bastion
+
+# ========================================================================
+Outputs:
+  AppSecurityGroup:
+    Description: SG for Application
+    Value: !Ref AppSecurityGroup
+    Export:
+      Name: AppSG
+
+  AuroraSecurityGroup:
+    Description: SG for AuroraDB
+    Value: !Ref AuroraSecurityGroup
+    Export:
+      Name: AuroraSG
