@@ -6,6 +6,8 @@ Description: 'AWS CloudFormation which creates an:
   - AutoScalingGroup
   - NetworkLoadBalancer listening on port 80'
 
+#TODO Delete OperatorEMail, SSHLocation, Mappings
+
 Parameters:
 
   InstanceType:
