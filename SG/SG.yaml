@@ -99,3 +99,9 @@ Outputs:
     Value: !Ref AuroraSecurityGroup
     Export:
       Name: AuroraSG
+
+  BastionSecurityGroup:
+    Description: SG for Bastion
+    Value: !Ref BastionSecurityGroup
+    Export:
+      Name: BastionSecurityGroup
