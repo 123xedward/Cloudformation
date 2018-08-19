@@ -59,7 +59,32 @@ Resources:
       ToPort: 3306
       SourceSecurityGroupId: !Ref ApplicationSecurityGroup
 
-#TODO SG for Bastion
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow shh to determinate EC2 instances
+      VpcId: !ImportValue VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "SSH"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for Bastion Instances"
 
 # ========================================================================
 Outputs:
