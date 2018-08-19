@@ -1,0 +1,9 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Deploy an EC2 in specific subnet with specifics Parameters"
+
+Parameters:
+
+Resources:
+
+Outputs:
