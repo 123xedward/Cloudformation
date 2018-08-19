@@ -4,10 +4,9 @@ Description: "Deploy an EC2 in specific subnet with specifics Parameters"
 
 Parameters:
 
-#TODO Mover por Subred
-  AZ1:
-    Description: Availability Zone 1
-    Type: AWS::EC2::AvailabilityZone::Name
+  Subnet:
+    Description: Subnet to EC2
+    Type: AWS::EC2::Subnet::Id
 
   Keyname:
     Description: Keyname
@@ -35,12 +34,12 @@ Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: !Ref AZ1
       ImageId: !Ref AMI
       InstanceType: !Ref EC2Type
       KeyName: !Ref Keyname
       SecurityGroupIds:
         - !ImportValue BastionSecurityGroup
+      SubnetId: !Ref Subnet
 
 #TODO Poner la IP Publica|privada
 #Outputs:
