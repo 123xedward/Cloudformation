@@ -1,10 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Metadata:
-  License: Apache-2.0
-
 Description: 'Creates an RDS Aurora Cluster with master | replica instance'
 
+#TODO add Parameters store
 Parameters:
 
   DBName:
@@ -86,6 +84,7 @@ Resources:
               Ref: DatabaseInstanceType
           DBSubnetGroupName:
               Ref: DatabaseSubnetGroup
+          AvailabilityZone: !ImportValue AZ1
 
   DatabaseReplicaInstance:
       Type: AWS::RDS::DBInstance
@@ -97,5 +96,7 @@ Resources:
               Ref: DatabaseInstanceType
           DBSubnetGroupName:
               Ref: DatabaseSubnetGroup
+          AvailabilityZone: !ImportValue AZ2
 
 # ========================================================================
+#TODO Outputs
