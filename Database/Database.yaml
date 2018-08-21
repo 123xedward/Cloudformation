@@ -62,6 +62,8 @@ Resources:
     Type: AWS::RDS::DBCluster
     Properties:
         Engine: aurora
+        Port: 3306 #Optional, you could use another one
+        DatabaseName : "Database_example"
         MasterUsername:
             Ref: DBUser
         MasterUserPassword:
@@ -72,6 +74,7 @@ Resources:
             Ref: DatabaseSubnetGroup
         VpcSecurityGroupIds:
           - !ImportValue AppSG
+        #SnapshotIdentifier #TODO Conditional with user and password
 
   DatabasePrimaryInstance:
       Type: AWS::RDS::DBInstance
