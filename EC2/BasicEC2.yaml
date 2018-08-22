@@ -41,5 +41,9 @@ Resources:
         - !ImportValue BastionSecurityGroup
       SubnetId: !Ref Subnet
 
-#TODO Poner la IP Publica|privada
-#Outputs:
+#=====================================================================
+Outputs:
+
+  PrivateIP:
+    Description: "Private IP"
+    Value: !Get EC2Instance.PrivateIp #TODO revisar
