@@ -48,6 +48,22 @@ Parameters:
 
 Resources:
 
+  PasswordSSM:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Description: Password
+      Name: Password
+      Type: String
+      Value: !Ref DBPassword
+
+  UserSSM:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Description: User
+      Name: User
+      Type: String
+      Value: !Ref DBUser
+
   DatabaseSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
