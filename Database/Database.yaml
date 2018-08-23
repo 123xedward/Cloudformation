@@ -2,7 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 
 Description: 'Creates an RDS Aurora Cluster with master | replica instance'
 
-#TODO add Parameters store
 Parameters:
 
   DBName:
@@ -63,6 +62,15 @@ Resources:
       Name: User
       Type: String
       Value: !Ref DBUser
+
+  EndpointSSM:
+    Type: "AWS::SSM::Parameter"
+    DependsOn: DatabaseCluster
+    Properties:
+      Description: Endpoint
+      Name: Endpoint
+      Type: String
+      Value: !GetAtt DatabaseCluster.Endpoint.Address
 
   DatabaseSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
