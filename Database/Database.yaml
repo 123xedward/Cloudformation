@@ -123,4 +123,8 @@ Resources:
           AvailabilityZone: !ImportValue AZ2
 
 # ========================================================================
-#TODO Outputs
+Outputs:
+
+  Endpoint:
+    Description: "Endpoint Database"
+    Value: !GetAtt DatabaseCluster.Endpoint.Address
