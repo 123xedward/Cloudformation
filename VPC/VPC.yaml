@@ -11,6 +11,26 @@ Parameters:
     Description: Availability Zone 2
     Type: AWS::EC2::AvailabilityZone::Name
 
+  VPC_Cidr:
+    Description: VPC CIDR
+    Type: String
+
+  PublicOne_Cidr:
+    Description: VPC CIDR
+    Type: String
+
+  PublicTwo_Cidr:
+    Description: VPC CIDR
+    Type: String
+
+  PrivateOne_Cidr:
+    Description: VPC CIDR
+    Type: String
+
+  PrivateTwo_Cidr:
+    Description: VPC CIDR
+    Type: String
+
 Mappings:
   SubnetConfig:
     VPC:
