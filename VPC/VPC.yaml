@@ -31,20 +31,6 @@ Parameters:
     Description: VPC CIDR
     Type: String
 
-Mappings:
-  SubnetConfig:
-    VPC:
-      CIDR: "10.0.0.0/16"
-    PublicOne:
-      CIDR: "10.0.0.0/24"
-    PublicTwo:
-      CIDR: "10.0.1.0/24"
-    PrivateOne:
-      CIDR: "10.0.2.0/24"
-    PrivateTwo:
-      CIDR: "10.0.3.0/24"
-
-
 Resources:
 
   VPC:
@@ -52,11 +38,7 @@ Resources:
     Properties:
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
-      CidrBlock:
-        Fn::FindInMap:
-          - "SubnetConfig"
-          - "VPC"
-          - "CIDR"
+      CidrBlock: !Ref VPC_Cidr
       Tags:
           -
             Key: "Application"
@@ -75,11 +57,7 @@ Resources:
     Properties:
       VpcId:
         Ref: "VPC"
-      CidrBlock:
-        Fn::FindInMap:
-          - "SubnetConfig"
-          - "PublicOne"
-          - "CIDR"
+      CidrBlock: !Ref PublicOne_Cidr
       AvailabilityZone: !Ref AZ1
       MapPublicIpOnLaunch: "true"
       Tags:
@@ -100,11 +78,7 @@ Resources:
     Properties:
       VpcId:
         Ref: "VPC"
-      CidrBlock:
-        Fn::FindInMap:
-          - "SubnetConfig"
-          - "PublicTwo"
-          - "CIDR"
+      CidrBlock: !Ref PublicTwo_Cidr
       AvailabilityZone: !Ref AZ2
       MapPublicIpOnLaunch: "true"
       Tags:
@@ -125,11 +99,7 @@ Resources:
     Properties:
       VpcId:
         Ref: "VPC"
-      CidrBlock:
-        Fn::FindInMap:
-          - "SubnetConfig"
-          - "PrivateOne"
-          - "CIDR"
+      CidrBlock: !Ref PrivateOne_Cidr
       AvailabilityZone: !Ref AZ1
       Tags:
         -
@@ -149,11 +119,7 @@ Resources:
     Properties:
       VpcId:
         Ref: "VPC"
-      CidrBlock:
-        Fn::FindInMap:
-          - "SubnetConfig"
-          - "PrivateTwo"
-          - "CIDR"
+      CidrBlock: !Ref PrivateTwo_Cidr
       AvailabilityZone: !Ref AZ2
       Tags:
         -
