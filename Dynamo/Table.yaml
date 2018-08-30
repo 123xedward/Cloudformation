@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Metadata:
-  License: Apache-2.0
 Description: 'AWS CloudFormation Sample Template DynamoDB_Table'
+
 Parameters:
+
   HashKeyElementName:
     Description: HashType PrimaryKey Name
     Type: String
@@ -10,6 +10,7 @@ Parameters:
     MinLength: '1'
     MaxLength: '2048'
     ConstraintDescription: must contain only alphanumberic characters
+
   HashKeyElementType:
     Description: HashType PrimaryKey Type
     Type: String
@@ -18,6 +19,7 @@ Parameters:
     MinLength: '1'
     MaxLength: '1'
     ConstraintDescription: must be either S or N
+
   ReadCapacityUnits:
     Description: Provisioned read throughput
     Type: Number
@@ -25,6 +27,7 @@ Parameters:
     MinValue: '5'
     MaxValue: '10000'
     ConstraintDescription: must be between 5 and 10000
+
   WriteCapacityUnits:
     Description: Provisioned write throughput
     Type: Number
@@ -32,7 +35,9 @@ Parameters:
     MinValue: '5'
     MaxValue: '10000'
     ConstraintDescription: must be between 5 and 10000
+
 Resources:
+
   myDynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -45,6 +50,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref 'ReadCapacityUnits'
         WriteCapacityUnits: !Ref 'WriteCapacityUnits'
+
 Outputs:
   TableName:
     Value: !Ref 'myDynamoDBTable'
