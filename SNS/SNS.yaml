@@ -8,7 +8,6 @@ Parameters:
     Description: The endpoint that receives notifications from the Amazon SNS topic.
       The endpoint value depends on the protocol that you specify. This could be a
       URL or ARN
-
   SubscriptionProtocol:
     Type: String
     Description: The subscription's protocol
@@ -27,25 +26,34 @@ Resources:
 
   SNSTopic:
     Type: AWS::SNS::Topic
-    Properties: {}
+    Properties:
+    Subscription:
+      -
+        Endpoint:
+          Fn::GetAtt:
+            - "MyQueue1"
+            - "Arn"
+        Protocol: "sqs"
+      -
+        Endpoint:
+          Fn::GetAtt:
+            - "MyQueue2"
+            - "Arn"
+        Protocol: "sqs"
+    TopicName: "SampleTopic"
 
   SNSSubscription:
     Type: AWS::SNS::Subscription
     Properties:
-      Endpoint:
-        Ref: SubscriptionEndPoint
-      Protocol:
-        Ref: SubscriptionProtocol
-      TopicArn:
-        Ref: SNSTopic
+    Endpoint: test@email.com
+    Protocol: email
+    TopicArn: !Ref 'MySNSTopic'
 
-#***********************************************************************
 Outputs:
   TopicARN:
     Description: ARN of newly created SNS Topic
     Value:
       Ref: SNSTopic
-
   QueueName:
     Description: Name of newly created SNS Topic
     Value:
