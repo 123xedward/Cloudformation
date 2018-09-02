@@ -44,6 +44,10 @@ Parameters:
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 
+  ImageId:
+    Description: "Amazon Machine Image"
+    Type: String
+
 #***************************************************************************
 Resources:
 
