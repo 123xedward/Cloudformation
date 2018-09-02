@@ -6,7 +6,7 @@ Description: 'AWS CloudFormation which creates an:
   - AutoScalingGroup
   - NetworkLoadBalancer listening on port 80'
 
-#TODO Delete OperatorEMail, SSHLocation, Mappings
+#TODO Add Az's, check LoadBalancer
 
 Parameters:
 
@@ -79,81 +79,12 @@ Resources:
         WaitOnResourceSignals: true
 
   LaunchConfig:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Metadata:
-      Comment: Install a simple application
-      AWS::CloudFormation::Init:
-        config:
-          packages:
-            yum:
-              httpd: []
-          files:
-            /var/www/html/index.html:
-              content: !Join ['
-
-                  ', [<img src=", !FindInMap [Region2Examples, !Ref 'AWS::Region',
-                    Examples], /cloudformation_graphic.png" alt="AWS CloudFormation
-                    Logo"/>, '<h1>Congratulations, you have successfully launched
-                    the AWS CloudFormation sample.</h1>']]
-              mode: '000644'
-              owner: root
-              group: root
-            /etc/cfn/cfn-hup.conf:
-              content: !Join ['', ['[main]
-
-                    ', stack=, !Ref 'AWS::StackId', '
-
-                    ', region=, !Ref 'AWS::Region', '
-
-                    ']]
-              mode: '000400'
-              owner: root
-              group: root
-            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
-              content: !Join ['', ['[cfn-auto-reloader-hook]
-
-                    ', 'triggers=post.update
-
-                    ', 'path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
-
-                    ', 'action=/opt/aws/bin/cfn-init -v ', '         --stack ', !Ref 'AWS::StackName',
-                  '         --resource LaunchConfig ', '         --region ', !Ref 'AWS::Region',
-                  '
-
-                    ', 'runas=root
-
-                    ']]
-          services:
-            sysvinit:
-              httpd:
-                enabled: true
-                ensureRunning: true
-              cfn-hup:
-                enabled: true
-                ensureRunning: true
-                files: [/etc/cfn/cfn-hup.conf, /etc/cfn/hooks.d/cfn-auto-reloader.conf]
-    Properties:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
       KeyName: !Ref 'KeyName'
-      ImageId: !FindInMap [AWSRegionArch2AMI, !Ref 'AWS::Region', !FindInMap [AWSInstanceType2Arch,
-          !Ref 'InstanceType', Arch]]
-      SecurityGroups: [!Ref 'InstanceSecurityGroup']
+      ImageId: !Ref ImageId
+      SecurityGroups: !Ref InstanceSecurityGroup
       InstanceType: !Ref 'InstanceType'
-      UserData: !Base64
-        Fn::Join:
-        - ''
-        - ['#!/bin/bash -xe
-
-            ', 'yum update -y aws-cfn-bootstrap
-
-            ', '/opt/aws/bin/cfn-init -v ', '         --stack ', !Ref 'AWS::StackName',
-          '         --resource LaunchConfig ', '         --region ', !Ref 'AWS::Region',
-          '
-
-            ', '/opt/aws/bin/cfn-signal -e $? ', '         --stack ', !Ref 'AWS::StackName',
-          '         --resource WebServerGroup ', '         --region ', !Ref 'AWS::Region',
-          '
-
-            ']
+      UserData:
 
   WebServerScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
