@@ -22,6 +22,16 @@ Parameters:
     Type: String
     Default: ami-04681a1dbd79675a5
 
+  MinSize:
+    Description: Min Size Instance in use
+    Type: String
+    Default: 2
+
+  MaxSize:
+    Description: Maz Size Instance in use
+    Type: String
+    Default: 4
+
   OperatorEMail:
     Description: EMail address to notify if there are any scaling operations
     Type: String
@@ -42,6 +52,8 @@ Parameters:
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 
+#==============================================================================
+
 Resources:
   NotificationTopic:
     Type: AWS::SNS::Topic
@@ -57,18 +69,18 @@ Resources:
         - !ImportValue AZ1
         - !ImportValue AZ2
       LaunchConfigurationName: !Ref 'LaunchConfig'
-      MinSize: '1'
-      MaxSize: '3'
+      MinSize: !Ref MinSize
+      MaxSize: !Ref MaxSize
       LoadBalancerNames: [!Ref 'ElasticLoadBalancer']
       NotificationConfigurations:
         - TopicARN: !Ref 'NotificationTopic'
           NotificationTypes: ['autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR',
             'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR']
 
-    CreationPolicy:
-      ResourceSignal:
-        Timeout: PT15M
-        Count: 1
+#    CreationPolicy:
+#      ResourceSignal:
+#        Timeout: PT15M
+#        Count: 1
 
     UpdatePolicy:
       AutoScalingRollingUpdate:
@@ -164,6 +176,7 @@ Resources:
         SourceSecurityGroupOwnerId: !GetAtt [ElasticLoadBalancer, SourceSecurityGroup.OwnerAlias]
         SourceSecurityGroupName: !GetAtt [ElasticLoadBalancer, SourceSecurityGroup.GroupName]
 
+#==============================================================================
 Outputs:
   URL:
     Description: The URL of the website
