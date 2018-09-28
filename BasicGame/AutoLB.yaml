@@ -17,6 +17,11 @@ Parameters:
       hi1.4xlarge, hs1.8xlarge, cr1.8xlarge, cc2.8xlarge, cg1.4xlarge]
     ConstraintDescription: must be a valid EC2 instance type.
 
+  ImageId:
+    Description: Please input a valid AMI
+    Type: String
+    Default: ami-04681a1dbd79675a5
+
   OperatorEMail:
     Description: EMail address to notify if there are any scaling operations
     Type: String
@@ -48,7 +53,9 @@ Resources:
   WebServerGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      AvailabilityZones: !GetAZs ''
+      AvailabilityZones:
+        - !ImportValue AZ1
+        - !ImportValue AZ2
       LaunchConfigurationName: !Ref 'LaunchConfig'
       MinSize: '1'
       MaxSize: '3'
@@ -57,10 +64,12 @@ Resources:
         - TopicARN: !Ref 'NotificationTopic'
           NotificationTypes: ['autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR',
             'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR']
+
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
         Count: 1
+
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MinInstancesInService: 1
@@ -70,80 +79,11 @@ Resources:
 
   LaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
-    Metadata:
-      Comment: Install a simple application
-      AWS::CloudFormation::Init:
-        config:
-          packages:
-            yum:
-              httpd: []
-          files:
-            /var/www/html/index.html:
-              content: !Join ['
-
-                  ', [<img src=", !FindInMap [Region2Examples, !Ref 'AWS::Region',
-                    Examples], /cloudformation_graphic.png" alt="AWS CloudFormation
-                    Logo"/>, '<h1>Congratulations, you have successfully launched
-                    the AWS CloudFormation sample.</h1>']]
-              mode: '000644'
-              owner: root
-              group: root
-            /etc/cfn/cfn-hup.conf:
-              content: !Join ['', ['[main]
-
-                    ', stack=, !Ref 'AWS::StackId', '
-
-                    ', region=, !Ref 'AWS::Region', '
-
-                    ']]
-              mode: '000400'
-              owner: root
-              group: root
-            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
-              content: !Join ['', ['[cfn-auto-reloader-hook]
-
-                    ', 'triggers=post.update
-
-                    ', 'path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
-
-                    ', 'action=/opt/aws/bin/cfn-init -v ', '         --stack ', !Ref 'AWS::StackName',
-                  '         --resource LaunchConfig ', '         --region ', !Ref 'AWS::Region',
-                  '
-
-                    ', 'runas=root
-
-                    ']]
-          services:
-            sysvinit:
-              httpd:
-                enabled: true
-                ensureRunning: true
-              cfn-hup:
-                enabled: true
-                ensureRunning: true
-                files: [/etc/cfn/cfn-hup.conf, /etc/cfn/hooks.d/cfn-auto-reloader.conf]
     Properties:
-      KeyName: !Ref 'KeyName'
-      ImageId: !FindInMap [AWSRegionArch2AMI, !Ref 'AWS::Region', !FindInMap [AWSInstanceType2Arch,
-          !Ref 'InstanceType', Arch]]
-      SecurityGroups: [!Ref 'InstanceSecurityGroup']
-      InstanceType: !Ref 'InstanceType'
-      UserData: !Base64
-        Fn::Join:
-        - ''
-        - ['#!/bin/bash -xe
-
-            ', 'yum update -y aws-cfn-bootstrap
-
-            ', '/opt/aws/bin/cfn-init -v ', '         --stack ', !Ref 'AWS::StackName',
-          '         --resource LaunchConfig ', '         --region ', !Ref 'AWS::Region',
-          '
-
-            ', '/opt/aws/bin/cfn-signal -e $? ', '         --stack ', !Ref 'AWS::StackName',
-          '         --resource WebServerGroup ', '         --region ', !Ref 'AWS::Region',
-          '
-
-            ']
+      ImageId: !Ref ImageId
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      InstanceType: !Ref InstanceType
 
   WebServerScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
