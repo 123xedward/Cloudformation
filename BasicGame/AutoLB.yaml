@@ -148,7 +148,9 @@ Resources:
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
-      AvailabilityZones: !GetAZs ''
+      Subnets:
+        - !ImportValue PrivateOne
+        - !ImportValue PrivateTwo
       CrossZone: true
       Listeners:
       - LoadBalancerPort: '80'
