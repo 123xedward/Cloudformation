@@ -133,38 +133,7 @@ Resources:
         Value: !Ref 'WebServerGroup'
       ComparisonOperator: LessThanThreshold
 
-#  ElasticLoadBalancer:
-#    Type: AWS::ElasticLoadBalancing::LoadBalancer
-#    Properties:
-#      Subnets:
-#        - !ImportValue PrivateOne
-#        - !ImportValue PrivateTwo
-#      CrossZone: true
-#      Listeners:
-#      - LoadBalancerPort: '80'
-#        InstancePort: '80'
-#        Protocol: HTTP
-#      HealthCheck:
-#        Target: HTTP:80/
-#        HealthyThreshold: '3'
-#        UnhealthyThreshold: '5'
-#        Interval: '30'
-#        Timeout: '5'
 
-  InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable SSH access and HTTP from the load balancer only
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: !Ref 'SSHLocation'
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-#        SourceSecurityGroupOwnerId: !GetAtt [ElasticLoadBalancer, SourceSecurityGroup.OwnerAlias]
-#        SourceSecurityGroupName: !GetAtt [ElasticLoadBalancer, SourceSecurityGroup.GroupName]
 
 #==============================================================================
 #Outputs:
