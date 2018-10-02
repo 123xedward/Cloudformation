@@ -133,7 +133,50 @@ Resources:
         Value: !Ref 'WebServerGroup'
       ComparisonOperator: LessThanThreshold
 
+  GameNLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: GameNLB
+      Type: network
+      Scheme: internal
+      Subnets:
+      - Ref: !ImportValue PrivateOne
+      - Ref: !ImportValue PrivateTwo
+#      SecurityGroups:
+#      - Ref: SecurityGroup1
+      Tags:
+      - Key: Name
+        Value: NLB for Game
+      - Key: Type
+        Value: Hackaton
 
+  GameListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: NLBTargetGroup
+      LoadBalancerArn: !Ref GameNLB
+      Port: 80
+      Protocol: TCP
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      Port: 8080
+      Protocol: TCP
+      UnhealthyThresholdCount: 2
+      VpcId: !ImportValue VPC
+      Tags:
+      - Key: Name
+        Value: Game TargetGroup
+      - Key: Type
+        Value: Hackaton
 
 #==============================================================================
 #Outputs:
