@@ -59,12 +59,15 @@ Resources:
       LaunchConfigurationName: !Ref 'LaunchConfig'
       MinSize: !Ref MinSize
       MaxSize: !Ref MaxSize
-#      LoadBalancerNames: [!Ref 'ElasticLoadBalancer']
       NotificationConfigurations:
         - TopicARN: !ImportValue 'NotificationTopic'
           NotificationTypes: ['autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR',
             'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR']
-
+      VPCZoneIdentifier:
+        - !ImportValue PrivateOne
+        - !ImportValue PrivateTwo
+      TargetGroupARNs:
+        - !Ref NLBTargetGroup
 #    CreationPolicy:
 #      ResourceSignal:
 #        Timeout: PT15M
@@ -81,8 +84,8 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: !Ref ImageId
-      SecurityGroups:
-        - !Ref InstanceSecurityGroup
+#      SecurityGroups:
+#        - !Ref InstanceSecurityGroup
       InstanceType: !Ref InstanceType
 
   WebServerScaleUpPolicy:
@@ -136,12 +139,12 @@ Resources:
   GameNLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: GameNLB
+      Name: GameNLBFinal
       Type: network
       Scheme: internal
       Subnets:
-      - Ref: !ImportValue PrivateOne
-      - Ref: !ImportValue PrivateTwo
+        - !ImportValue PrivateOne
+        - !ImportValue PrivateTwo
 #      SecurityGroups:
 #      - Ref: SecurityGroup1
       Tags:
@@ -161,7 +164,7 @@ Resources:
       Port: 80
       Protocol: TCP
 
-  TargetGroup:
+  NLBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckIntervalSeconds: 10
@@ -177,6 +180,21 @@ Resources:
         Value: Game TargetGroup
       - Key: Type
         Value: Hackaton
+
+#  InstanceSecurityGroup:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: Enable SSH access and HTTP from the load balancer only
+#      SecurityGroupIngress:
+#      - IpProtocol: tcp
+#        FromPort: 22
+#        ToPort: 22
+#        CidrIp: "0.0.0.0/0"
+#      - IpProtocol: tcp
+#        FromPort: 80
+#        ToPort: 80
+#        SourceSecurityGroupOwnerId: !GetAtt [GameNLB, SourceSecurityGroup.OwnerAlias]
+#        SourceSecurityGroupName: !GetAtt [GameNLB, SourceSecurityGroup.GroupName]
 
 #==============================================================================
 #Outputs:
