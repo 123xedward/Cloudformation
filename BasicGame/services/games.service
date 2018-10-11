@@ -1,0 +1,13 @@
+[Unit]
+Description=games service
+After=network.target
+
+[Service]
+Type=simple
+user=ec2-user
+WorkingDirectory=/home/ec2-user/ms-jars
+ExecStart=/usr/bin/java -jar ms-play-games.jar
+Restart=on-failure
+
+[Install]
+Wantedby=multi-user.target
