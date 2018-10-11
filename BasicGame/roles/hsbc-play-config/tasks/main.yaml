@@ -7,7 +7,10 @@
 - name: Copy jars from S3 bucket
   shell: |
     aws s3 cp s3://thunderhacks-builds/ms-jars/ /home/ec2-user/ms-jars/ --recursive
-    aws s3 cp s3://thunderhacks-builds/services/ /etc/systemd/ --recursive
+    
+- name: Copy services from bucket
+  shell: |
+    aws s3 cp s3://thunderhacks-builds/services/ /etc/systemd/system/ --recursive
     
 - name: Ensure server is enabled
   service:
