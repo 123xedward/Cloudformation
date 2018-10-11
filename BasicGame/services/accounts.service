@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-user=ec2-user
+User=ec2-user
 WorkingDirectory=/home/ec2-user/ms-jars
 ExecStart=/usr/bin/java -jar ms-play-accounts.jar
 Restart=on-failure
 
 [Install]
-Wantedby=multi-user.target
+WantedBy=multi-user.target

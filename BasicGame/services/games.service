@@ -10,4 +10,4 @@ ExecStart=/usr/bin/java -jar ms-play-games.jar
 Restart=on-failure
 
 [Install]
-Wantedby=multi-user.target
+WantedBy=multi-user.target
