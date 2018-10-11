@@ -141,7 +141,7 @@ Resources:
     Properties:
       Name: GameNLBFinal
       Type: network
-      Scheme: internal
+      Scheme: internet-facing
       Subnets:
         - !ImportValue PrivateOne
         - !ImportValue PrivateTwo
