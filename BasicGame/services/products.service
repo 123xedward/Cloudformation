@@ -1,0 +1,13 @@
+[Unit]
+Description=products service
+After=network.target
+
+[Service]
+Type=simple
+user=ec2-user
+WorkingDirectory=/home/ec2-user/ms-jars
+ExecStart=/usr/bin/java -jar ms-play-products.jar
+Restart=on-failure
+
+[Install]
+Wantedby=multi-user.target
