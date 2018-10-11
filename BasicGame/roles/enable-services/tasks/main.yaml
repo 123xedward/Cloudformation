@@ -1,0 +1,39 @@
+- name: Copy jars from S3
+  shell: |
+    aws s3 cp s3://thunderhacks-builds/ms-jars/ /home/ec2-user/ms-jars/ --recursive
+
+- name: Ensure server is enabled
+  service:
+    name: server
+    state: started
+    enabled: true
+
+- name: Ensure accounts is enabled
+  service:
+    name: accounts
+    state: started
+    enabled: true
+
+- name: Ensure buddy is enabled
+  service:
+    name: buddy
+    state: started
+    enabled: true
+
+- name: Ensure games is enabled
+  service:
+    name: games
+    state: started
+    enabled: true
+
+- name: Ensure products is enabled
+  service:
+    name: products
+    state: started
+    enabled: true
+
+- name: Ensure user is enabled
+  service:
+    name: user
+    state: started
+    enabled: true
