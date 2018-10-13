@@ -20,17 +20,17 @@ Parameters:
   ImageId:
     Description: Please input a valid AMI
     Type: String
-    Default: ami-04681a1dbd79675a5
+    Default: ami-0a8efe11f13d14a32
 
   MinSize:
     Description: Min Size Instance in use
     Type: String
-    Default: 2
+    Default: 1
 
   MaxSize:
     Description: Maz Size Instance in use
     Type: String
-    Default: 4
+    Default: 2
 
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instances
@@ -64,8 +64,8 @@ Resources:
           NotificationTypes: ['autoscaling:EC2_INSTANCE_LAUNCH', 'autoscaling:EC2_INSTANCE_LAUNCH_ERROR',
             'autoscaling:EC2_INSTANCE_TERMINATE', 'autoscaling:EC2_INSTANCE_TERMINATE_ERROR']
       VPCZoneIdentifier:
-        - !ImportValue PrivateOne
-        - !ImportValue PrivateTwo
+        - !ImportValue PublicOne
+        - !ImportValue PublicTwo
       TargetGroupARNs:
         - !Ref NLBTargetGroup
 #    CreationPolicy:
@@ -84,9 +84,10 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: !Ref ImageId
-#      SecurityGroups:
-#        - !Ref InstanceSecurityGroup
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
       InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
 
   WebServerScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
@@ -143,8 +144,8 @@ Resources:
       Type: network
       Scheme: internet-facing
       Subnets:
-        - !ImportValue PrivateOne
-        - !ImportValue PrivateTwo
+        - !ImportValue PublicOne
+        - !ImportValue PublicTwo
 #      SecurityGroups:
 #      - Ref: SecurityGroup1
       Tags:
@@ -181,23 +182,17 @@ Resources:
       - Key: Type
         Value: Hackaton
 
-#  InstanceSecurityGroup:
-#    Type: AWS::EC2::SecurityGroup
-#    Properties:
-#      GroupDescription: Enable SSH access and HTTP from the load balancer only
-#      SecurityGroupIngress:
-#      - IpProtocol: tcp
-#        FromPort: 22
-#        ToPort: 22
-#        CidrIp: "0.0.0.0/0"
-#      - IpProtocol: tcp
-#        FromPort: 80
-#        ToPort: 80
-#        SourceSecurityGroupOwnerId: !GetAtt [GameNLB, SourceSecurityGroup.OwnerAlias]
-#        SourceSecurityGroupName: !GetAtt [GameNLB, SourceSecurityGroup.GroupName]
-
-#==============================================================================
-#Outputs:
-#  URL:
-#    Description: The URL of the website
-#    Value: !Join ['', ['http://', !GetAtt [ElasticLoadBalancer, DNSName]]]
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access and HTTP from the load balancer only
+      VpcId: !ImportValue VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: "0.0.0.0/0"
+      - IpProtocol: tcp
+        FromPort: 8003
+        ToPort: 8006
+        CidrIp: "0.0.0.0/0"

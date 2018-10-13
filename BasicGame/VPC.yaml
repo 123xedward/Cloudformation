@@ -334,6 +334,20 @@ Outputs:
     Export:
       Name: VPC
 
+  PublicOne:
+    Description: "Public Subnet in AZ1"
+    Value:
+      Ref: "PublicSubnetOne"
+    Export:
+      Name: PublicOne
+
+  PublicTwo:
+    Description: "Public Subnet in AZ2"
+    Value:
+      Ref: "PublicSubnetTwo"
+    Export:
+      Name: PublicTwo
+
   PrivateOne:
     Description: "Private Subnet in AZ1"
     Value:
