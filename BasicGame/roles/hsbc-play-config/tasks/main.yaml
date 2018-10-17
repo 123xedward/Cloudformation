@@ -47,3 +47,9 @@
     name: user
     state: started
     enabled: true
+
+- name: Ensure url is enabled
+  service:
+    name: url
+    state: started
+    enabled: true
