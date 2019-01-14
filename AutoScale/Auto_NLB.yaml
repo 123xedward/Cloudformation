@@ -6,7 +6,7 @@ Description: 'AWS CloudFormation which creates an:
   - AutoScalingGroup
   - NetworkLoadBalancer listening on port 80'
 
-#TODO Add Az's, check LoadBalancer
+#TODO Add Az's, check LoadBalancer 
 
 Parameters:
 
