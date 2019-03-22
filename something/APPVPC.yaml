@@ -316,4 +316,4 @@ Outputs:
     Description: VPC Cidr
     Value: !Ref VPCCidr
     Export:
-      Name: VPCCidr
+      Name: APPVPCCidr

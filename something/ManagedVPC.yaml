@@ -440,44 +440,44 @@ Outputs:
     Value:
       Ref: "VPC"
     Export:
-      Name: VPC
+      Name: ManVPC
 
   PrivateOne:
     Description: "Private Subnet in AZ1"
     Value:
       Ref: "PrivateSubnetOne"
     Export:
-      Name: PrivateOne
+      Name: ManPrivateOne
 
   PrivateTwo:
     Description: "Private Subnet in AZ2"
     Value:
       Ref: "PrivateSubnetTwo"
     Export:
-      Name: PrivateTwo
+      Name: ManPrivateTwo
 
   AZ1:
     Description: "AZ 1"
     Value:
       Ref: "AZ1"
     Export:
-      Name: AZ1
+      Name: ManAZ1
 
   AZ2:
     Description: "AZ 2"
     Value:
       Ref: "AZ2"
     Export:
-      Name: AZ2
+      Name: ManAZ2
   
   AppName:
     Description: "Applications Name"
     Value: !Ref AppName
     Export:
-      Name: AppName
+      Name: ManAppName
   
   VPCCidr:
     Description: VPC Cidr
     Value: !Ref VPCCidr
     Export:
-      Name: VPCCidr
+      Name: ManVPCCidr

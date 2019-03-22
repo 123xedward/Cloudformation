@@ -1,0 +1,117 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Cloudformation Stack which create: 
+Security Grouops for
+- EC2 Autoscaling group
+- RDS Oracle
+"
+
+Resources:
+
+  ApplicationSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId: !ImportValue VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "http"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for Application"
+
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow App instances to RDS 3306
+      VpcId: !ImportValue VPC
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "http"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for RDS"
+
+  RDSSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: RDSSecurityGroup
+    Properties:
+      GroupId: !Ref RDSSecurityGroup
+      IpProtocol: tcp
+      FromPort: 1521
+      ToPort: 1521
+      SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+
+  EFSSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Allow App instances to RDS 3306
+        VpcId: !ImportValue VPC
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 192.18.100.0/24
+        Tags:
+            -
+              Key: "Application"
+              Value:
+                Ref: "AWS::StackName"
+            -
+              Key: "SecurityGroup"
+              Value: "http"
+            -
+              Key: "Name"
+              Value: "SecurityGroup for EFS"
+
+  EFSSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: EFSSecurityGroup
+    Properties:
+      GroupId: !Ref EFSSecurityGroup
+      IpProtocol: tcp
+      FromPort: 2049
+      ToPort: 2049
+      SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+
+# ========================================================================
+Outputs:
+  AppSecurityGroup:
+    Description: SG for Application
+    Value: !Ref ApplicationSecurityGroup
+    Export:
+      Name: AppSG
+
+  AuroraSecurityGroup:
+    Description: SG for AuroraDB
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: RDSSG
+
+  EFSSecurityGroup:
+    Description: SG for EFS
+    Value: !Ref EFSSecurityGroup
+    Export:
+      Name: EFSSG
+

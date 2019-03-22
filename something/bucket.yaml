@@ -1,0 +1,16 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cloudformation Stack which creates a bucket"
+
+Parameters:
+
+  Bucketnameof:
+    Description: Name of bucket
+    Type: String
+
+  
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref Bucketnameof

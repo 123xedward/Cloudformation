@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cloudformation Stack which create: 
+- EFS for EC2
+"
+Parameters:
+
+  
+  VolumeName:
+    Description: The name to be used for the EFS volume
+    Type: String
+    MinLength: '1'
+    Default: myEFSvolume
+
+  MountPoint:
+    Description: The Linux mount point for the EFS volume
+    Type: String
+    MinLength: '1'
+    Default: myEFSvolume
+
+#==========================================================
+
+Resources:
+
+  FileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+      FileSystemTags:
+      - Key: Name
+        Value:
+          Ref: VolumeName
+
+  MountTarget:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref FileSystem
+      SubnetId: !ImportValue PrivateOne
+      SecurityGroups:
+      - !ImportValue EFSSG
+
+#==========================================================
+Outputs:
+  MountTargetID:
+    Description: Mount target ID
+    Value:
+      Ref: MountTarget
+
+  FileSystemID:
+    Description: File system ID
+    Value:
+      Ref: FileSystem
