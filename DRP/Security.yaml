@@ -106,6 +106,33 @@ Resources:
           Value: SG_Endpoints 
       VpcId: !ImportValue VPCInternet
 
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow App instances to RDS 3306
+      VpcId: !ImportValue VPCInternet
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "http"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for RDS"
+
+  RDSSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: RDSSecurityGroup
+    Properties:
+      GroupId: !Ref RDSSecurityGroup
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+      SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+
 # ========================================================================
 Outputs:
   AppSecurityGroup:
@@ -131,3 +158,9 @@ Outputs:
     Value: !Ref AppLoadBalancerSecurityGroup
     Export:
       Name: SGALBInternet
+
+  AuroraSecurityGroup:
+    Description: SG for AuroraDB
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: RDSSG

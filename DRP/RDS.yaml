@@ -8,7 +8,7 @@ Parameters:
 
   MasterUsername:
     Type: String
-    Default: aidaArgentina
+    Default: demoDRP
 
   DBInstanceType:
     Type: String
@@ -29,8 +29,8 @@ Resources:
     Properties:
       DBSubnetGroupDescription: CloudFormation managed DB subnet group.
       SubnetIds: 
-        - !ImportValue PrivateThree
-        - !ImportValue PrivateFour
+        - !ImportValue PrivateThreeInternet
+        - !ImportValue PrivateFourInternet
 
   DatabaseCluster:
     Type: AWS::RDS::DBCluster
