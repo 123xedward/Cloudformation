@@ -1,0 +1,133 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Cloudformation Stack which create: 
+Security Grouops for
+- EC2 Autoscaling group
+"
+
+Resources:
+
+  ApplicationSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow App instances to SG for ALB
+      VpcId: !ImportValue VPCInternet
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "http"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for Application"
+
+  AppSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: ApplicationSecurityGroup
+    Properties:
+      GroupId: !Ref ApplicationSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourceSecurityGroupId: !Ref AppLoadBalancerSecurityGroup
+  
+  AppLoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId: !ImportValue VPCInternet
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      Tags:
+          -
+            Key: "ALB"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "SecurityGroup"
+            Value: "http"
+          -
+            Key: "Name"
+            Value: "SecurityGroup for AppLoadBalancer"
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: /
+      Roles:
+        - !Ref EC2Role 
+      InstanceProfileName: EC2InstanceProfileInternet
+
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: EC2RoleForSessionManagerInternet
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "ec2.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+
+  SGEndpoints:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: Endpoints SecurityGroupInternet
+      GroupDescription: Endpoints SecurityGroup
+      SecurityGroupEgress:
+        - IpProtocol: 'tcp'
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupIngress:
+        - IpProtocol: 'tcp'
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: SG_Endpoints 
+      VpcId: !ImportValue VPCInternet
+
+# ========================================================================
+Outputs:
+  AppSecurityGroup:
+    Description: SG for Application
+    Value: !Ref ApplicationSecurityGroup
+    Export:
+      Name: AppSGInternet
+
+  EC2InstanceProfile:
+    Description: EC2 Instance Profile
+    Value: !Ref EC2InstanceProfile
+    Export:
+      Name: EC2InstanceProfileInternet
+
+  SGEndpoints:
+    Description: Security Group for Endpoints
+    Value: !Ref SGEndpoints
+    Export:
+      Name: SGEndpointsInternet
+
+  ALBSG:
+    Description: Security Group for ALB
+    Value: !Ref AppLoadBalancerSecurityGroup
+    Export:
+      Name: SGALBInternet
