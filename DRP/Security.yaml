@@ -67,12 +67,12 @@ Resources:
       Path: /
       Roles:
         - !Ref EC2Role 
-      InstanceProfileName: EC2InstanceProfileInternet
+#      InstanceProfileName: EC2InstanceProfileInternet
 
   EC2Role:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EC2RoleForSessionManagerInternet
+#      RoleName: EC2RoleForSessionManagerInternet
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       AssumeRolePolicyDocument: 
