@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS Service Catalog cross-account development pipeline master template'
+
+Parameters:
+
+# ServiceCatalog Product Artifact Name
+  ProductArtifactName:
+    Description:    Please specify ServiceCatalog Product Artifact Name.
+    Type:           String
+    Default:        "VPC.yaml"
+
+# ServiceCatalog Product Artifact Location
+  ProductArtifactLocation:
+    Description:    Please specify ServiceCatalog Product Artifact Location.
+    Type:           String
+    Default:        "https://s3.amazonaws.com/portfolioarchitect123xedward"
+
+#==========================================================================
+Resources:
+
+  ServiceCatalogCloudFormationProduct:
+    Type: "AWS::ServiceCatalog::CloudFormationProduct"
+    Properties:
+      Name: VPC Compliance
+      Description: VPC Template compliance
+      Owner: 123xedward
+      SupportEmail: emontes@cloudup.mx
+      SupportUrl: http://code.123xedward.com
+      ProvisioningArtifactParameters:
+        -
+          Name: VPC Template
+          Description: VPC Template Compliance
+          Info:
+            LoadTemplateFromURL: !Sub "${ProductArtifactLocation}/${ProductArtifactName}"
+
+  ServiceCatalogPortfolioProductAssociation:
+    Type: "AWS::ServiceCatalog::PortfolioProductAssociation"
+    DependsOn: ServiceCatalogCloudFormationProduct
+    Properties:
+      PortfolioId: !ImportValue 'ServiceCatalogPortfolio'
+      ProductId: !Ref 'ServiceCatalogCloudFormationProduct'
+
+#==========================================================================
+Outputs:
+
+  ServiceCatalogCloudFormationProduct:
+    Value:    !Ref 'ServiceCatalogCloudFormationProduct'
+    Description: Service Catalog VPC product ID
+
+  ServiceCatalogProductArtifact:
+    Value:    !GetAtt 'ServiceCatalogCloudFormationProduct.ProvisioningArtifactIds'
+    Description: Service Catalog VPC product version ID
