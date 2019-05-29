@@ -7,11 +7,26 @@ Metadata:
     ParameterGroups:
       -
         Label:
-          default: "Service Catalog Details"
+          default: "Service Portfolio Details"
         Parameters:
           - PortfolioID
-          - ProductID
-          - ArtifactID
+
+      -
+        Label:
+          default: "Products Details"
+        Parameters:
+          - VPCProductID
+          - VPCArtifactID
+          - SecurityProductID
+          - SecurityArtifactID
+          - NotificationProductID
+          - NotificationArtifactID
+          - EndpointsProductID
+          - EndpointsArtifactID
+          - AutoScalingProductID
+          - AutoScalingArtifactID
+          - RDSProductID
+          - RDSArtifactID
       -
         Label:
           default: "CodePipeline Details"
@@ -34,16 +49,67 @@ Parameters:
     Type:           String
     Default:        "port-xxxxxxxxxxxx"
 
-  ProductID:
+  VPCProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
     Default:        "prod-xxxxxxxxxxxx"
 
-  ArtifactID:
+  VPCArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
     Default:        "pa-xxxxxxxxxxxx"
 
+  SecurityProductID:
+    Description:    Please specify the master account Product ID.
+    Type:           String
+    Default:        "prod-xxxxxxxxxxxx"
+
+  SecurityArtifactID:
+    Description:    Please specify the master account Artifact ID.
+    Type:           String
+    Default:        "pa-xxxxxxxxxxxx"
+
+  NotificationProductID:
+    Description:    Please specify the master account Product ID.
+    Type:           String
+    Default:        "prod-xxxxxxxxxxxx"
+
+  NotificationArtifactID:
+    Description:    Please specify the master account Artifact ID.
+    Type:           String
+    Default:        "pa-xxxxxxxxxxxx"
+
+  EndpointsProductID:
+    Description:    Please specify the master account Product ID.
+    Type:           String
+    Default:        "prod-xxxxxxxxxxxx"
+
+  EndpointsArtifactID:
+    Description:    Please specify the master account Artifact ID.
+    Type:           String
+    Default:        "pa-xxxxxxxxxxxx"
+
+  AutoScalingProductID:
+    Description:    Please specify the master account Product ID.
+    Type:           String
+    Default:        "prod-xxxxxxxxxxxx"
+
+  AutoScalingArtifactID:
+    Description:    Please specify the master account Artifact ID.
+    Type:           String
+    Default:        "pa-xxxxxxxxxxxx"
+
+  RDSProductID:
+    Description:    Please specify the master account Product ID.
+    Type:           String
+    Default:        "prod-xxxxxxxxxxxx"
+
+  RDSArtifactID:
+    Description:    Please specify the master account Artifact ID.
+    Type:           String
+    Default:        "pa-xxxxxxxxxxxx"
+
+#==================================================
   PipelineName:
     Description:    Please specify a the Pipeline Name.
     Type:           String
@@ -90,7 +156,7 @@ Resources:
       AcceptLanguage: "en"
       Description: "This portfolio will host the shared VPC product"
       DisplayName: "Local-VPC-Portfolio"
-      ProviderName: "CloudCoE"
+      ProviderName: "Cloud Up"
 
   CFNPortfolioPrincipalAssociation:
     Type: "AWS::ServiceCatalog::PortfolioPrincipalAssociation"
@@ -105,7 +171,7 @@ Resources:
     Properties:
       AcceptLanguage: "en"
       PortfolioId: !Ref VPCPortfolio
-      ProductId: !Ref 'ProductID'
+      ProductId: !Ref 'VPCProductID'
       SourcePortfolioId: !Ref 'PortfolioID'
 
   SCVPCLaunchConstraint:
@@ -116,7 +182,7 @@ Resources:
       AcceptLanguage: "en"
       Description: "This launch constraint ensures that VPC will be launched in local account"
       PortfolioId: !Ref VPCPortfolio
-      ProductId: !Ref 'ProductID'
+      ProductId: !Ref 'VPCProductID'
       RoleArn: !GetAtt SCProductLaunchRole.Arn
 
   ArtifactStoreBucket:
@@ -186,7 +252,9 @@ Resources:
                 StackName: !Ref EC2StackName
                 TemplatePath: !Sub "SourceArtifact::${EC2StackCFN}"
               RunOrder: '1'
-              
+
+#============================================================
+
   SCProductLaunchRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -281,9 +349,9 @@ Resources:
 Outputs:
   ProductID:
     Description: A reference to the created Product ID
-    Value: !Ref ProductID
+    Value: !Ref VPCProductID
     Export:
-      Name: ProductID
+      Name: VPCProductID
 
   PortfolioID:
     Description: A reference to the created Portfolio ID
@@ -293,6 +361,6 @@ Outputs:
 
   ArtifactID:
     Description: A reference to the created Artifact ID
-    Value: !Ref ArtifactID
+    Value: !Ref VPCArtifactID
     Export:
-      Name: ArtifactID
+      Name: VPCArtifactID
