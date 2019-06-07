@@ -14,14 +14,17 @@ Parameters:
   AppName: 
     Description: Applications Name
     Type: String
+    Default: "DRP"
  
   AZ1:
     Description: Availability Zone 1
     Type: AWS::EC2::AvailabilityZone::Name
+    Default: "us-east-1a"
 
   AZ2:
     Description: Availability Zone 2
     Type: AWS::EC2::AvailabilityZone::Name
+    Default: "us-east-1b"
 
   VPCCidr:
     Description: Virtual Network Cloud

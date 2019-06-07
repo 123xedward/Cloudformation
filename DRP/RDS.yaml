@@ -12,7 +12,7 @@ Parameters:
 
   DBInstanceType:
     Type: String
-    Default: db.r5.large
+    Default: db.t2.small
     AllowedValues: [db.t2.small, db.t2.medium, db.t3.small, db.t3.medium,
     db.r3.large,db.r4.large,db.r5.large]
 

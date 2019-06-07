@@ -29,7 +29,7 @@ Parameters:
   ImageId:
     Description: Please input a valid AMI
     Type: String
-    Default: ami-0de53d8956e8dcf80
+    Default: ami-05b96ab49812e95b7
 
   MinSize:
     Description: Min Size Instance in use
@@ -49,7 +49,7 @@ Parameters:
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instances
     Type: AWS::EC2::KeyPair::KeyName
-    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Default: "DemoDRP"
 
 #==========================================================================
 

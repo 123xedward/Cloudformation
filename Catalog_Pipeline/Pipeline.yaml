@@ -35,79 +35,87 @@ Metadata:
           - SourceS3Key
       -
         Label:
-          default: "VPC/EC2 Details"
+          default: "Stacks Parameters"
         Parameters:
           - VPCStackName
           - VPCStackCFN
-          - EC2StackName
-          - EC2StackCFN
+          - SecurityStackName
+          - SecurityStackCFN
+          - NotificationStackName
+          - NotificationStackCFN
+          - EndpointsStackName
+          - EndpointsStackCFN
+          - AutoScalingStackName
+          - AutoScalingStackCFN
+          - RDSStackName
+          - RDSStackCFN
 
 Parameters:
 
   PortfolioID:
     Description:    Please specify the master account Portfolio ID.
     Type:           String
-    Default:        "port-xxxxxxxxxxxx"
+    Default:        "port-iqyrqvl45a2ec"
 
   VPCProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        "prod-xxxxxxxxxxxx"
+    Default:        "prod-vafd27am6sunm"
 
   VPCArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        "pa-xxxxxxxxxxxx"
+    Default:        "pa-vikfbiyufgjrk"
 
   SecurityProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        "prod-xxxxxxxxxxxx"
+    Default:        "prod-mg2kzdtonosvc"
 
   SecurityArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        "pa-xxxxxxxxxxxx"
+    Default:        "pa-aggrqzdnmlx56"
 
   NotificationProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        "prod-xxxxxxxxxxxx"
+    Default:        "prod-tbryc2efzwxuq"
 
   NotificationArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        "pa-xxxxxxxxxxxx"
+    Default:        "pa-vth2pcwfh2llc"
 
   EndpointsProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        "prod-xxxxxxxxxxxx"
+    Default:        "prod-2chgomtveitmm"
 
   EndpointsArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        "pa-xxxxxxxxxxxx"
+    Default:        "pa-lfwdjj367gib2"
 
   AutoScalingProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        "prod-xxxxxxxxxxxx"
+    Default:        "prod-a5fuxd64apjsw"
 
   AutoScalingArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        "pa-xxxxxxxxxxxx"
+    Default:        "pa-2rfwlj6zf2qqu"
 
   RDSProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        "prod-xxxxxxxxxxxx"
+    Default:        "prod-op2l6uvtnxkh2"
 
   RDSArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        "pa-xxxxxxxxxxxx"
+    Default:        "pa-b6u7vwvkerfug"
 
 #==================================================
   PipelineName:
@@ -118,28 +126,70 @@ Parameters:
   SourceS3Key:
     Description:    Please specify the source artifact.  This is the .zip file containing our VPC and EC2 templates.
     Type:           String
-    Default:        "scblog.zip"
+    Default:        "sc.zip"
+
+#==============================================================================
 
   VPCStackName:
     Description:    Please specify the VPC stack name.
     Type:           String
-    Default:        "SCBlogVPCStack"
+    Default:        "VPC"
 
   VPCStackCFN:
     Description:    Please specify the VPC CloudFormation artifact location.
     Type:           String
     Default:        "CFN/DeployVPC.yml"
 
-  EC2StackName:
-    Description:    Please specify the EC2 VPC stack name.
+  SecurityStackName:
+    Description:    Please specify the Security stack name.
     Type:           String
-    Default:        "SCBlogEC2Stack"
+    Default:        "Security"
 
-  EC2StackCFN:
-    Description:    Please specify the EC2 CloudFormation artifact location.
+  SecurityStackCFN:
+    Description:    Please specify the Security CloudFormation artifact location.
     Type:           String
-    Default:        "CFN/DeployEC2.yml"
+    Default:        "CFN/DeploySecurity.yml"
 
+  NotificationStackName:
+    Description:    Please specify the Security stack name.
+    Type:           String
+    Default:        "Notification"
+
+  NotificationStackCFN:
+    Description:    Please specify the Security CloudFormation artifact location.
+    Type:           String
+    Default:        "CFN/DeployNotification.yml"
+
+  EndpointsStackName:
+    Description:    Please specify the Security stack name.
+    Type:           String
+    Default:        "Endpoints"
+
+  EndpointsStackCFN:
+    Description:    Please specify the Security CloudFormation artifact location.
+    Type:           String
+    Default:        "CFN/DeployEndpoints.yml"
+
+  AutoScalingStackName:
+    Description:    Please specify the Security stack name.
+    Type:           String
+    Default:        "AutoScaling"
+
+  AutoScalingStackCFN:
+    Description:    Please specify the Security CloudFormation artifact location.
+    Type:           String
+    Default:        "CFN/DeployAutoScaling.yml"
+
+  RDSStackName:
+    Description:    Please specify the Security stack name.
+    Type:           String
+    Default:        "RDS"
+
+  RDSStackCFN:
+    Description:    Please specify the Security CloudFormation artifact location.
+    Type:           String
+    Default:        "CFN/DeployRDS.yml"
+  
 #==============================================================================
 
 Resources:
@@ -149,42 +199,138 @@ Resources:
       AcceptLanguage: "en"
       PortfolioId: !Ref 'PortfolioID'
 
-  VPCPortfolio:
+  ProductsPortfolio:
     Type: "AWS::ServiceCatalog::Portfolio"
     DependsOn: AcceptedPortfolioShare
     Properties:
       AcceptLanguage: "en"
       Description: "This portfolio will host the shared VPC product"
-      DisplayName: "Local-VPC-Portfolio"
+      DisplayName: "Local-Products-Portfolio"
       ProviderName: "Cloud Up"
 
   CFNPortfolioPrincipalAssociation:
     Type: "AWS::ServiceCatalog::PortfolioPrincipalAssociation"
     Properties:
       AcceptLanguage: "en"
-      PortfolioId: !Ref VPCPortfolio
+      PortfolioId: !Ref ProductsPortfolio
       PrincipalARN: !GetAtt CFNLaunchRole.Arn
       PrincipalType: "IAM"
 
-  PortfolioProductAssociation:
+  VPCPortfolioProductAssociation:
     Type: "AWS::ServiceCatalog::PortfolioProductAssociation"
     Properties:
       AcceptLanguage: "en"
-      PortfolioId: !Ref VPCPortfolio
+      PortfolioId: !Ref ProductsPortfolio
       ProductId: !Ref 'VPCProductID'
       SourcePortfolioId: !Ref 'PortfolioID'
 
-  SCVPCLaunchConstraint:
+  VPCLaunchConstraint:
     Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
     DependsOn:
-      - VPCPortfolio
+      - ProductsPortfolio
     Properties:
       AcceptLanguage: "en"
       Description: "This launch constraint ensures that VPC will be launched in local account"
-      PortfolioId: !Ref VPCPortfolio
+      PortfolioId: !Ref ProductsPortfolio
       ProductId: !Ref 'VPCProductID'
       RoleArn: !GetAtt SCProductLaunchRole.Arn
 
+  SecurityPortfolioProductAssociation:
+    Type: "AWS::ServiceCatalog::PortfolioProductAssociation"
+    Properties:
+      AcceptLanguage: "en"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'SecurityProductID'
+      SourcePortfolioId: !Ref 'PortfolioID'
+
+  SecurityLaunchConstraint:
+    Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
+    DependsOn:
+      - ProductsPortfolio
+    Properties:
+      AcceptLanguage: "en"
+      Description: "This launch constraint ensures that Security will be launched in local account"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'SecurityProductID'
+      RoleArn: !GetAtt SCProductLaunchRole.Arn
+
+  EndpointsPortfolioProductAssociation:
+    Type: "AWS::ServiceCatalog::PortfolioProductAssociation"
+    Properties:
+      AcceptLanguage: "en"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'EndpointsProductID'
+      SourcePortfolioId: !Ref 'PortfolioID'
+
+  EndpointsLaunchConstraint:
+    Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
+    DependsOn:
+      - ProductsPortfolio
+    Properties:
+      AcceptLanguage: "en"
+      Description: "This launch constraint ensures that Security will be launched in local account"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'EndpointsProductID'
+      RoleArn: !GetAtt SCProductLaunchRole.Arn
+  
+  NotificationPortfolioProductAssociation:
+    Type: "AWS::ServiceCatalog::PortfolioProductAssociation"
+    Properties:
+      AcceptLanguage: "en"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'NotificationProductID'
+      SourcePortfolioId: !Ref 'PortfolioID'
+
+  NotificationLaunchConstraint:
+    Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
+    DependsOn:
+      - ProductsPortfolio
+    Properties:
+      AcceptLanguage: "en"
+      Description: "This launch constraint ensures that Security will be launched in local account"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'NotificationProductID'
+      RoleArn: !GetAtt SCProductLaunchRole.Arn
+
+  AutoScalingPortfolioProductAssociation:
+    Type: "AWS::ServiceCatalog::PortfolioProductAssociation"
+    Properties:
+      AcceptLanguage: "en"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'AutoScalingProductID'
+      SourcePortfolioId: !Ref 'PortfolioID'
+
+  AutoScalingLaunchConstraint:
+    Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
+    DependsOn:
+      - ProductsPortfolio
+    Properties:
+      AcceptLanguage: "en"
+      Description: "This launch constraint ensures that Security will be launched in local account"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'AutoScalingProductID'
+      RoleArn: !GetAtt SCProductLaunchRole.Arn
+
+  RDSPortfolioProductAssociation:
+    Type: "AWS::ServiceCatalog::PortfolioProductAssociation"
+    Properties:
+      AcceptLanguage: "en"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'RDSProductID'
+      SourcePortfolioId: !Ref 'PortfolioID'
+
+  RDSLaunchConstraint:
+    Type: "AWS::ServiceCatalog::LaunchRoleConstraint"
+    DependsOn:
+      - ProductsPortfolio
+    Properties:
+      AcceptLanguage: "en"
+      Description: "This launch constraint ensures that Security will be launched in local account"
+      PortfolioId: !Ref ProductsPortfolio
+      ProductId: !Ref 'RDSProductID'
+      RoleArn: !GetAtt SCProductLaunchRole.Arn
+
+###########################################################################
   ArtifactStoreBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -194,7 +340,7 @@ Resources:
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     DependsOn:
-      - VPCPortfolio
+      - ProductsPortfolio
       - CFNLaunchRole
       - ArtifactStoreBucket
 
@@ -236,9 +382,9 @@ Resources:
                 StackName: !Ref VPCStackName
                 TemplatePath: !Sub "SourceArtifact::${VPCStackCFN}"
               RunOrder: '1'
-        - Name: DeployEC2
+        - Name: DeploySecurity
           Actions:
-            - Name: CreateEC2
+            - Name: CreateSecurity
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
@@ -249,8 +395,72 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 RoleArn: !GetAtt CFNLaunchRole.Arn
-                StackName: !Ref EC2StackName
-                TemplatePath: !Sub "SourceArtifact::${EC2StackCFN}"
+                StackName: !Ref SecurityStackName
+                TemplatePath: !Sub "SourceArtifact::${SecurityStackCFN}"
+              RunOrder: '1'
+        - Name: DeployEndpoints
+          Actions:
+            - Name: CreateEndpoints
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                RoleArn: !GetAtt CFNLaunchRole.Arn
+                StackName: !Ref EndpointsStackName
+                TemplatePath: !Sub "SourceArtifact::${EndpointsStackCFN}"
+              RunOrder: '1'
+        - Name: DeployNotification
+          Actions:
+            - Name: CreateNotification
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                RoleArn: !GetAtt CFNLaunchRole.Arn
+                StackName: !Ref NotificationStackName
+                TemplatePath: !Sub "SourceArtifact::${NotificationStackCFN}"
+              RunOrder: '1'
+        - Name: DeployAutoScaling
+          Actions:
+            - Name: CreateAutoScaling
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                RoleArn: !GetAtt CFNLaunchRole.Arn
+                StackName: !Ref AutoScalingStackName
+                TemplatePath: !Sub "SourceArtifact::${AutoScalingStackCFN}"
+              RunOrder: '1'
+        - Name: DeployRDS
+          Actions:
+            - Name: CreateRDS
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                RoleArn: !GetAtt CFNLaunchRole.Arn
+                StackName: !Ref RDSStackName
+                TemplatePath: !Sub "SourceArtifact::${RDSStackCFN}"
               RunOrder: '1'
 
 #============================================================
@@ -288,6 +498,14 @@ Resources:
                   - 's3:GetObject'
                   - 'servicecatalog:*'
                   - 'sns:*'
+                  - 'iam:*'
+                  - 'rds:*'
+                  - 'elasticloadbalancing:*'
+                  - 'autoscaling:*'
+                  - 'cloudwatch:*'
+                  - 'ssm:*'
+                  - 'ec2:*'
+                  
                 Resource: '*'
 
   CFNLaunchRole:
@@ -342,16 +560,12 @@ Resources:
                 - 'cloudformation:DescribeChangeSet'
                 - 'cloudformation:SetStackPolicy'
                 - 'iam:PassRole'
+                - 'iam:*'
                 - 'sns:Publish'
                 Effect: Allow
                 Resource: '*'
 
 Outputs:
-  ProductID:
-    Description: A reference to the created Product ID
-    Value: !Ref VPCProductID
-    Export:
-      Name: VPCProductID
 
   PortfolioID:
     Description: A reference to the created Portfolio ID
@@ -359,8 +573,74 @@ Outputs:
     Export:
       Name: PortfolioID
 
-  ArtifactID:
+  VPCProductID:
+    Description: A reference to the created Product ID
+    Value: !Ref VPCProductID
+    Export:
+      Name: VPCProductID
+
+  VPCArtifactID:
     Description: A reference to the created Artifact ID
     Value: !Ref VPCArtifactID
     Export:
       Name: VPCArtifactID
+
+  SecurityProductID:
+    Description: A reference to the created Product ID
+    Value: !Ref SecurityProductID
+    Export:
+      Name: SecurityProductID
+
+  SecurityArtifactID:
+    Description: A reference to the created Artifact ID
+    Value: !Ref SecurityArtifactID
+    Export:
+      Name: SecurityArtifactID
+  
+  EndpointsProductID:
+    Description: A reference to the created Product ID
+    Value: !Ref EndpointsProductID
+    Export:
+      Name: EndpointsProductID
+
+  EndpointsArtifactID:
+    Description: A reference to the created Artifact ID
+    Value: !Ref EndpointsArtifactID
+    Export:
+      Name: EndpointsArtifactID
+
+  NotificationProductID:
+    Description: A reference to the created Product ID
+    Value: !Ref NotificationProductID
+    Export:
+      Name: NotificationProductID
+
+  NotificationArtifactID:
+    Description: A reference to the created Artifact ID
+    Value: !Ref NotificationArtifactID
+    Export:
+      Name: NotificationArtifactID
+
+  AutoScalingProductID:
+    Description: A reference to the created Product ID
+    Value: !Ref AutoScalingProductID
+    Export:
+      Name: AutoScalingProductID
+
+  AutoScalingArtifactID:
+    Description: A reference to the created Artifact ID
+    Value: !Ref AutoScalingArtifactID
+    Export:
+      Name: AutoScalingArtifactID
+
+  RDSProductID:
+    Description: A reference to the created Product ID
+    Value: !Ref RDSProductID
+    Export:
+      Name: RDSProductID
+
+  RDSArtifactID:
+    Description: A reference to the created Artifact ID
+    Value: !Ref RDSArtifactID
+    Export:
+      Name: RDSArtifactID
