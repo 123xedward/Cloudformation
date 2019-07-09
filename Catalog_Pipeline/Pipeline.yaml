@@ -55,67 +55,67 @@ Parameters:
   PortfolioID:
     Description:    Please specify the master account Portfolio ID.
     Type:           String
-    Default:        port-cm62pvmzaf7ng
+    Default:        port-drkokjwiaqumm
 
   VPCProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        prod-gkldwosf7hi4c
+    Default:        prod-ga3kgvcnqhu76
 
   VPCArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        pa-i3cpjrxwdrcvc
+    Default:        pa-irghvbod6icxm
 
   SecurityProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        prod-erd3mbfciciz6
+    Default:        prod-yq4ntfyqjhdas
 
   SecurityArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        pa-bnlum6xhmm6lw
+    Default:        pa-gk3o5rjebylvm
 
   NotificationProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        prod-yieivubwxdomu
+    Default:        prod-6erlylvkamtmc
 
   NotificationArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        pa-nfff34xdan52s
+    Default:        pa-kg5iufi5nijvg
 
   EndpointsProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        prod-jyq5qycocfuns
+    Default:        prod-m3wfnw4fvrxus
 
   EndpointsArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        pa-rxu6vjbjtr5qm
+    Default:        pa-2totdc6gprula
 
   AutoScalingProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        prod-3jyrf6zv2n77m
+    Default:        prod-r4blbzgsnhtug
 
   AutoScalingArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        pa-2rvym7opvnko4
+    Default:        pa-bpyfu2yiddvyk
 
   RDSProductID:
     Description:    Please specify the master account Product ID.
     Type:           String
-    Default:        prod-ane6behjyc2tg
+    Default:        prod-y7agyvqsp3xtc
 
   RDSArtifactID:
     Description:    Please specify the master account Artifact ID.
     Type:           String
-    Default:        pa-g7bjcsnpozgfo
+    Default:        pa-kzii3vtgldqsw
 
 #==================================================
   PipelineName:
