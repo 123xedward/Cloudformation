@@ -73,7 +73,7 @@ Resources:
         - !ImportValue PrivateOneInternet
         - !ImportValue PrivateTwoInternet
       TargetGroupARNs:
-        - !ImportValue NLBTargetGroup
+        - !Ref NLBTargetGroup
       Tags:
       - Key: Name
         Value: !ImportValue AppNameInternet
@@ -151,5 +151,53 @@ Resources:
       - Name: AutoScalingGroupName
         Value: !Ref 'WebServerGroup'
       ComparisonOperator: LessThanThreshold
+      
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !ImportValue AppNameInternet
+      Type: application
+      SecurityGroups:
+        - !ImportValue SGALBInternet
+      Scheme: internet-facing
+      Subnets:
+        #- !ImportValue PrivateOneInternet
+        #- !ImportValue PrivateTwoInternet
+        - !ImportValue PublicOneInternet
+        - !ImportValue PublicTwoInternet
+      Tags:
+      - Key: Name
+        Value: !ImportValue AppNameInternet
+      - Key: Type
+        Value: NLB Notification
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: NLBTargetGroup
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  NLBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !ImportValue AppNameInternet
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: !ImportValue VPCInternet
+      Tags:
+      - Key: Name
+        Value: !ImportValue AppNameInternet
+      - Key: Type
+        Value: TargetGroup SmartNotification
 
 #==========================================================================

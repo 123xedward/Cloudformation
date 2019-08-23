@@ -1,0 +1,32 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cloudformation Stack which request an emain in order to
+send sms notification when an autoscaling event happens"
+
+Parameters:
+
+  OperatorEMail:
+    Description: EMail address to notify if there are any scaling operations
+    Type: String
+#    AllowedPattern: ([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)
+    Default: emontes@mail.com
+
+#===============================================================================
+
+Resources:
+
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+      - Endpoint: !Ref 'OperatorEMail'
+        Protocol: email
+
+#===============================================================================
+
+Outputs:
+  NotificationTopic:
+    Description: "Mail of Operator"
+    Value: !Ref NotificationTopic
+    Export:
+      Name: NotificationTopic

@@ -1,0 +1,464 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Cloudformation Stack which create: 
+VPC of Application
+- VPC 
+- 2 Private Subnets
+- Route Table for private subnets
+- NACL
+"
+
+#==========================================================================
+Parameters:
+
+  AppName: 
+    Description: Applications Name
+    Type: String
+    Default: "DRP"
+ 
+  AZ1:
+    Description: Availability Zone 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "us-east-1a"
+
+  AZ2:
+    Description: Availability Zone 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "us-east-1b"
+
+  VPCCidr:
+    Description: Virtual Network Cloud
+    Type: String
+    Default: 192.16.0.0/16
+
+  PublicCidrOne:
+    Description: Public Subnet CIDR
+    Type: String
+    Default: 192.16.1.0/24
+
+  PublicCidrTwo:
+    Description: Public Subnet CIDR
+    Type: String
+    Default: 192.16.2.0/24
+  
+  PrivateOneCidr:
+    Description: VPC_CIDR
+    Type: String
+    Default: 192.16.3.0/24
+
+  PrivateTwoCidr:
+    Description: VPC_CIDR
+    Type: String
+    Default: 192.16.4.0/24
+
+  PrivateThreeCidr:
+    Description: VPC_CIDR
+    Type: String
+    Default: 192.16.5.0/24
+
+  PrivateFourCidr:
+    Description: VPC_CIDR
+    Type: String
+    Default: 192.16.6.0/24
+
+#==========================================================================
+Resources:
+
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      CidrBlock: !Ref VPCCidr
+      Tags:
+          -
+            Key: "Application"
+            Value:
+              Ref: "AWS::StackName"
+          -
+            Key: "Network"
+            Value: "Private"
+          -
+            Key: "Name"
+            Value: !Ref AppName
+
+  PublicSubnetOne:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      CidrBlock: !Ref PublicCidrOne
+      AvailabilityZone: !Ref AZ1
+      Tags:
+        -
+          Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        -
+          Key: "Network"
+          Value: "Public Subnet"
+        -
+          Key: "Name"
+          Value: !Sub ${AppName} - Public Subnet - ${AZ1}
+
+  PublicSubnetTwo:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      CidrBlock: !Ref PublicCidrTwo
+      AvailabilityZone: !Ref AZ2
+      Tags:
+        -
+          Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        -
+          Key: "Network"
+          Value: "Public Subnet Two"
+        -
+          Key: "Name"
+          Value: !Sub ${AppName} - Public Subnet Two - ${AZ1}
+  
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: foo
+        Value: bar
+  
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: VPC
+      InternetGatewayId:
+        Ref: InternetGateway
+
+  PrivateSubnetOne:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      CidrBlock: !Ref PrivateOneCidr
+      AvailabilityZone: !Ref AZ1
+      Tags:
+        -
+          Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        -
+          Key: "Network"
+          Value: "Private One"
+        -
+          Key: "Name"
+          Value: !Sub ${AppName} - Subnet 1 - ${AZ1}
+
+
+  PrivateSubnetTwo:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      CidrBlock: !Ref PrivateTwoCidr
+      AvailabilityZone: !Ref AZ2
+      Tags:
+        -
+          Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        -
+          Key: "Network"
+          Value: "Private Two"
+        -
+          Key: "Name"
+          Value: !Sub ${AppName} - Subnet 2 - ${AZ2}
+
+  PrivateSubnetThree:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      CidrBlock: !Ref PrivateThreeCidr
+      AvailabilityZone: !Ref AZ1
+      Tags:
+        -
+          Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        -
+          Key: "Network"
+          Value: "Private Three"
+        -
+          Key: "Name"
+          Value: !Sub ${AppName} - Subnet 3 - ${AZ1}
+
+  PrivateSubnetFour:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      CidrBlock: !Ref PrivateFourCidr
+      AvailabilityZone: !Ref AZ2
+      Tags:
+        -
+          Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        -
+          Key: "Network"
+          Value: "Private Four"
+        -
+          Key: "Name"
+          Value: !Sub ${AppName} - Subnet 4 - ${AZ2}
+
+  PrivateNetworkAcl:
+    Type: "AWS::EC2::NetworkAcl"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      Tags:
+        -
+          Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        -
+          Key: "Network"
+          Value: "Private"
+        -
+          Key: "Name"
+          Value: !Sub ${AppName} Private NACL
+
+
+  PublicRouteTableApp:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${AppName} Public Route Table for App Load Balancer
+  
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTableApp
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: InternetGateway
+
+  PublicSubnetRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PublicSubnetOne"
+      RouteTableId:
+        Ref: "PublicRouteTableApp"
+
+  PublicSubnetRouteTableAssociation2:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PublicSubnetTwo"
+      RouteTableId:
+        Ref: "PublicRouteTableApp"
+  
+  PrivateRouteTableApp:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "VPC"
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ${AppName} Private Route Table for EC2 instances
+  
+  PrivateSubnetRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PrivateSubnetOne"
+      RouteTableId:
+        Ref: "PrivateRouteTableApp"
+
+  PrivateSubnetRouteTableAssociationTwo:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PrivateSubnetTwo"
+      RouteTableId:
+        Ref: "PrivateRouteTableApp"
+
+  PrivateSubnetRouteTableAssociationThree:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PrivateSubnetThree"
+      RouteTableId:
+        Ref: "PrivateRouteTableApp"
+
+  PrivateSubnetRouteTableAssociationFour:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PrivateSubnetFour"
+      RouteTableId:
+        Ref: "PrivateRouteTableApp"
+
+  InboundHTTPPrivateNetworkAclEntry:
+      Type: "AWS::EC2::NetworkAclEntry"
+      Properties:
+        NetworkAclId:
+          Ref: "PrivateNetworkAcl"
+        RuleNumber: "100"
+        Protocol: "-1"
+        RuleAction: "allow"
+        Egress: "false"
+        CidrBlock: "0.0.0.0/0"
+        PortRange:
+          From: "0"
+          To: "65535"
+
+
+  OutboundPrivateNetworkAclEntry:
+      Type: "AWS::EC2::NetworkAclEntry"
+      Properties:
+        NetworkAclId:
+          Ref: "PrivateNetworkAcl"
+        RuleNumber: "100"
+        Protocol: "-1"
+        RuleAction: "allow"
+        Egress: "true"
+        CidrBlock: "0.0.0.0/0"
+        PortRange:
+          From: "0"
+          To: "65535"
+
+
+  PrivateSubnetNetworkAclAssociation:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PrivateSubnetOne"
+      NetworkAclId:
+        Ref: "PrivateNetworkAcl"
+
+  PrivateSubnetNetworkAclAssociationTwo:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PrivateSubnetTwo"
+      NetworkAclId:
+        Ref: "PrivateNetworkAcl"
+
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc  
+
+  NAT:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+        - EIP
+        - AllocationId
+      SubnetId:
+        Ref: PublicSubnetOne
+      Tags:
+        - Key: NatGateway
+          Value: NatGateway
+
+  NatRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: PrivateRouteTableApp
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NAT
+
+#==========================================================================
+Outputs:
+  VPC:
+    Description: "VPCId of the newly created VPC"
+    Value:
+      Ref: "VPC"
+    Export:
+      Name: VPCInternet
+
+  PrivateOne:
+    Description: "Private Subnet in AZ1"
+    Value:
+      Ref: "PrivateSubnetOne"
+    Export:
+      Name: PrivateOneInternet
+
+  PrivateTwo:
+    Description: "Private Subnet in AZ2"
+    Value:
+      Ref: "PrivateSubnetTwo"
+    Export:
+      Name: PrivateTwoInternet
+
+  PrivateThree:
+      Description: "Private Subnet in AZ1"
+      Value:
+        Ref: "PrivateSubnetThree"
+      Export:
+        Name: PrivateThreeInternet
+
+  PrivateFour:
+      Description: "Private Subnet in AZ2"
+      Value:
+        Ref: "PrivateSubnetFour"
+      Export:
+        Name: PrivateFourInternet
+
+  PublicOne:
+    Description: "Public Subnet in AZ1"
+    Value:
+      Ref: "PublicSubnetOne"
+    Export:
+      Name: PublicOneInternet
+
+  PublicTwo:
+    Description: "Public Subnet in AZ2"
+    Value:
+      Ref: "PublicSubnetTwo"
+    Export:
+      Name: PublicTwoInternet
+  
+  AZ1:
+    Description: "AZ 1"
+    Value:
+      Ref: "AZ1"
+    Export:
+      Name: AZ1Internet
+
+  AZ2:
+    Description: "AZ 2"
+    Value:
+      Ref: "AZ2"
+    Export:
+      Name: AZ2Internet
+  
+  AppName:
+    Description: "Applications Name"
+    Value: !Ref AppName
+    Export:
+      Name: AppNameInternet
+  
+  VPCCidr:
+    Description: VPC Cidr
+    Value: !Ref VPCCidr
+    Export:
+      Name: APPVPCCidrInternet
+
+  PrivateRouteTableApp:
+    Description: RouteTable for EC2 instances
+    Value: !Ref PrivateRouteTableApp
+    Export: 
+      Name: PrivateRouteTableAppInternet

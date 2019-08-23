@@ -1,0 +1,133 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Cloudformation Stack which create: 
+Security Grouops for
+- EC2 Autoscaling group
+"
+
+Resources:
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: /
+      Roles:
+        - !Ref EC2Role 
+
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "ec2.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: "DemoInfra"
+      Type: application
+      SecurityGroups: 
+        - sg-0965ae9ed27622455
+      Scheme: internet-facing
+      Subnets:
+        - subnet-0c67e000f417f8a55
+        - subnet-0c2e371a7c31ff573
+      Tags:
+      - Key: Name
+        Value: "DemoInfra"
+      - Key: Type
+        Value: NLB Notification
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: NLBTargetGroup
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  NLBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: "DemoInfra"
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId: vpc-05491ab59f259dadc
+      Tags:
+      - Key: Name
+        Value: "DemoInfra"
+      - Key: Type
+        Value: TargetGroup DemoInfra
+
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: CloudFormation managed DB subnet group.
+      SubnetIds: 
+        - subnet-04393790d48612654
+        - subnet-0560a272a6124ec7e
+
+  DatabaseCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      Engine: aurora
+      MasterUsername: demoinfra
+      MasterUserPassword: "{{resolve:ssm-secure:passwordDB:1}}"
+      BackupRetentionPeriod: 7
+      PreferredBackupWindow: 01:00-02:00
+      PreferredMaintenanceWindow: mon:03:00-mon:04:00
+      DBSubnetGroupName: !Ref "DatabaseSubnetGroup"
+      VpcSecurityGroupIds: 
+        - sg-0965ae9ed27622455
+
+  DatabasePrimaryInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora
+      DBClusterIdentifier: !Ref "DatabaseCluster"
+      DBInstanceClass: db.t2.small
+      DBSubnetGroupName: !Ref "DatabaseSubnetGroup"
+
+# ========================================================================
+Outputs:
+
+  EC2InstanceProfile:
+    Description: EC2 Instance Profile
+    Value: !Ref EC2InstanceProfile
+    Export:
+      Name: EC2InstanceProfileInternet
+  
+  NLBTargetGroup:
+    Description: ARN Target Group
+    Value: !Ref NLBTargetGroup
+    Export:
+      Name: NLBTargetGroup
+
+  DatabaseCluster:
+    Description: DatabaseCluster
+    Value: !Ref DatabaseCluster
+    Export:
+      Name: DatabaseCluster
+
+  DatabaseSubnetGroup:
+    Description: DatabaseSubnetGroup
+    Value: !Ref DatabaseSubnetGroup
+    Export:
+      Name: DatabaseSubnetGroup

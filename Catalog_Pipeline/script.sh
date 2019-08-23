@@ -38,7 +38,7 @@ cd /Users/edwardmontes/Documents/github/Cloudformation/Catalog_Pipeline
 #Creacion Portafolio
 aws cloudformation create-stack --stack-name portafolio --template-body \
 file:////Users/edwardmontes/Documents/github/Cloudformation/Catalog_Pipeline/1_Portfolio.yaml \
---parameters ParameterKey=SubAccountID,ParameterValue=594866916759
+--parameters ParameterKey=SubAccountID,ParameterValue=979231503863
 
 #Pausa para crear el portafolio
 aws cloudformation wait stack-create-complete --stack-name portafolio

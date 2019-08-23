@@ -1,5 +1,3 @@
-#TODO Quitar instance profile  -3 min
-
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "Cloudformation Stack which create: 
@@ -34,7 +32,7 @@ Resources:
       IpProtocol: tcp
       FromPort: 80
       ToPort: 80
-      SourceSecurityGroupId: !Ref AppLoadBalancerSecurityGroup
+      CidrIp: 0.0.0.0/0
   
   AppLoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -62,6 +60,31 @@ Resources:
           -
             Key: "Name"
             Value: "SecurityGroup for AppLoadBalancer"
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: /
+      Roles:
+        - !Ref EC2Role 
+#      InstanceProfileName: EC2InstanceProfileInternet
+
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+#      RoleName: EC2RoleForSessionManagerInternet
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "ec2.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
 
   SGEndpoints:
     Type: AWS::EC2::SecurityGroup
@@ -117,6 +140,12 @@ Outputs:
     Value: !Ref ApplicationSecurityGroup
     Export:
       Name: AppSGInternet
+
+  EC2InstanceProfile:
+    Description: EC2 Instance Profile
+    Value: !Ref EC2InstanceProfile
+    Export:
+      Name: EC2InstanceProfileInternet
 
   SGEndpoints:
     Description: Security Group for Endpoints
